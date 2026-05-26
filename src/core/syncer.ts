@@ -1,8 +1,15 @@
 import type { RuleSource } from '@config';
 import { env } from '@config';
-import { formatBytes, ts } from '@utils';
+import { withRetry } from '@utils';
 import { S3Client } from 'bun';
 import ky, { HTTPError, TimeoutError } from 'ky';
+
+export interface SyncResult {
+  name: string;
+  s3Key: string;
+  bytes: number;
+  elapsedMs: number;
+}
 
 /** Lazily initialised S3 client using env vars. */
 const s3 = new S3Client({
@@ -24,8 +31,9 @@ const http = ky.create({
   timeout: 10_000,
 });
 
-/** Downloads a rule source from upstream and uploads it to S3. */
-export async function syncRule(source: RuleSource): Promise<void> {
+/** Downloads a rule source from upstream and uploads it to S3. Returns metadata. */
+export async function syncRule(source: RuleSource): Promise<SyncResult> {
+  const start = Date.now();
   let buffer: ArrayBuffer;
 
   try {
@@ -46,15 +54,17 @@ export async function syncRule(source: RuleSource): Promise<void> {
     ? `${env.S3_KEY_PREFIX.replace(/\/$/, '')}/${source.s3Key}`
     : source.s3Key;
 
-  console.log(
-    `[${ts()}] [s3] Uploading "${source.name}" → ${key} (${formatBytes(buffer.byteLength)})...`
-  );
-
   try {
-    const written = await s3.write(key, buffer);
-    console.log(
-      `[${ts()}] [s3] ✓ "${source.name}" uploaded (${formatBytes(written)}).`
+    const written = await withRetry(
+      () => s3.write(key, buffer),
+      `S3 upload "${source.name}"`
     );
+    return {
+      name: source.name,
+      s3Key: key,
+      bytes: written,
+      elapsedMs: Date.now() - start,
+    };
   } catch (err) {
     throw new Error(
       `S3 upload failed for "${source.name}" → ${key}: ${String(err)}`

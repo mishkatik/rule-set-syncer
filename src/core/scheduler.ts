@@ -1,9 +1,9 @@
 import { env, RULE_SOURCES } from '@config';
 import { syncRule } from '@core/syncer';
-import { ts } from '@utils';
+import { formatBytes, ts } from '@utils';
 import cron, { type ScheduledTask } from 'node-cron';
 
-/** Runs all rule syncs in parallel and logs per-source results. */
+/** Runs all rule syncs in parallel, then logs results in source order. */
 export async function syncAll(): Promise<void> {
   console.log(
     `[${ts()}] [sync] Starting sync of ${RULE_SOURCES.length} sources...`
@@ -15,16 +15,19 @@ export async function syncAll(): Promise<void> {
   let ok = 0;
   let failed = 0;
 
-  for (const [i, result] of results.entries()) {
-    const name = RULE_SOURCES[i]!.name;
+  for (const result of results) {
     if (result.status === 'fulfilled') {
+      const { name, s3Key, bytes, elapsedMs } = result.value;
+      console.log(
+        `[${ts()}] [s3]  ✓  ${name.padEnd(20)} ${formatBytes(bytes).padStart(9)}   ${elapsedMs}ms  →  ${s3Key}`
+      );
       ok++;
     } else {
       const msg =
         result.reason instanceof Error
           ? result.reason.message
           : String(result.reason);
-      console.error(`[${ts()}] [sync]  ✗ ${name}: ${msg}`);
+      console.error(`[${ts()}] [s3]  ✗  ${msg}`);
       failed++;
     }
   }
