@@ -1,0 +1,82 @@
+[
+  {
+    "name": "geosite-private",
+    "url": "https://raw.githubusercontent.com/MetaCubeX/meta-rules-dat/meta/geo/geosite/private.mrs",
+    "s3Key": "rule-sets/geosite-private.mrs"
+  },
+  {
+    "name": "ads-all",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/category-ads-all.mrs",
+    "s3Key": "rule-sets/ads-all.mrs"
+  },
+  {
+    "name": "torrent-trackers",
+    "url": "https://cdn.jsdelivr.net/gh/legiz-ru/mihomo-rule-sets@main/other/torrent-trackers.mrs",
+    "s3Key": "rule-sets/torrent-trackers.mrs"
+  },
+  {
+    "name": "torrent-clients",
+    "url": "https://cdn.jsdelivr.net/gh/legiz-ru/mihomo-rule-sets@main/other/torrent-clients.yaml",
+    "s3Key": "rule-sets/torrent-clients.yaml"
+  },
+  {
+    "name": "games-direct",
+    "url": "https://github.com/legiz-ru/mihomo-rule-sets/raw/main/other/games-direct.yaml",
+    "s3Key": "rule-sets/games-direct.yaml"
+  },
+  {
+    "name": "ru-app-list",
+    "url": "https://github.com/legiz-ru/mihomo-rule-sets/raw/main/other/ru-app-list.yaml",
+    "s3Key": "rule-sets/ru-app-list.yaml"
+  },
+  {
+    "name": "youtube",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/youtube.mrs",
+    "s3Key": "rule-sets/youtube.mrs"
+  },
+  {
+    "name": "whatsapp_domains",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/whatsapp.mrs",
+    "s3Key": "rule-sets/whatsapp_domains.mrs"
+  },
+  {
+    "name": "meta_ips",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geoip/facebook.mrs",
+    "s3Key": "rule-sets/meta_ips.mrs"
+  },
+  {
+    "name": "telegram_domains",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/telegram.mrs",
+    "s3Key": "rule-sets/telegram_domains.mrs"
+  },
+  {
+    "name": "telegram_ips",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geoip/telegram.mrs",
+    "s3Key": "rule-sets/telegram_ips.mrs"
+  },
+  {
+    "name": "discord_domains",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geosite/discord.mrs",
+    "s3Key": "rule-sets/discord_domains.mrs"
+  },
+  {
+    "name": "discord_voiceips",
+    "url": "https://cdn.jsdelivr.net/gh/legiz-ru/mihomo-rule-sets@main/other/discord-voice-ip-list.mrs",
+    "s3Key": "rule-sets/discord_voiceips.mrs"
+  },
+  {
+    "name": "cloudflare",
+    "url": "https://github.com/MetaCubeX/meta-rules-dat/raw/meta/geo/geoip/cloudflare.mrs",
+    "s3Key": "rule-sets/cloudflare.mrs"
+  },
+  {
+    "name": "ru-bundle",
+    "url": "https://cdn.jsdelivr.net/gh/legiz-ru/mihomo-rule-sets@main/ru-bundle/rule.mrs",
+    "s3Key": "ru-bundle/rule.mrs"
+  },
+  {
+    "name": "rknasnblock",
+    "url": "https://cdn.jsdelivr.net/gh/legiz-ru/mihomo-rule-sets@main/ru-bundle/rknasnblock.mrs",
+    "s3Key": "ru-bundle/rknasnblock.mrs"
+  }
+]

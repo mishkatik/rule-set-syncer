@@ -1,0 +1,15 @@
+node_modules
+out
+Dockerfile*
+docker-compose*
+.dockerignore
+.git
+.gitignore
+README.md
+.vscode
+.idea
+.env
+.env.example
+.editorconfig
+biome.json
+coverage*

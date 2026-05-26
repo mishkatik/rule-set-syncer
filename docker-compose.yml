@@ -1,0 +1,8 @@
+services:
+  rule-set-syncer:
+    container_name: rule-set-syncer
+    build: .
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./sources.json:/usr/src/app/sources.json:ro
