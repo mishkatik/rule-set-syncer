@@ -9,6 +9,8 @@ export interface SyncResult {
   s3Key: string;
   bytes: number;
   elapsedMs: number;
+  /** True when the object in S3 already matches the downloaded content and the upload was skipped. */
+  skipped: boolean;
 }
 
 /** Lazily initialised S3 client using env vars. */
@@ -30,6 +32,19 @@ const http = ky.create({
   },
   timeout: 10_000,
 });
+
+/**
+ * Returns the ETag of the existing S3 object (without quotes), or null if the
+ * object is missing or stat fails — in which case the caller just uploads.
+ */
+async function existingEtag(key: string): Promise<string | null> {
+  try {
+    const stat = await s3.stat(key);
+    return stat.etag.replaceAll('"', '');
+  } catch {
+    return null;
+  }
+}
 
 /** Downloads a rule source from upstream and uploads it to S3. Returns metadata. */
 export async function syncRule(source: RuleSource): Promise<SyncResult> {
@@ -54,6 +69,22 @@ export async function syncRule(source: RuleSource): Promise<SyncResult> {
     ? `${env.S3_KEY_PREFIX.replace(/\/$/, '')}/${source.s3Key}`
     : source.s3Key;
 
+  // For single-part PUT uploads the S3 ETag is the MD5 of the content
+  // (AWS S3, Cloudflare R2, MinIO). A multipart-style ETag never matches
+  // a plain MD5, so a mismatch safely falls through to a re-upload.
+  const md5 = new Bun.CryptoHasher('md5').update(buffer).digest('hex');
+  const currentEtag = await existingEtag(key);
+
+  if (currentEtag === md5) {
+    return {
+      name: source.name,
+      s3Key: key,
+      bytes: buffer.byteLength,
+      elapsedMs: Date.now() - start,
+      skipped: true,
+    };
+  }
+
   try {
     const written = await withRetry(
       () => s3.write(key, buffer),
@@ -64,6 +95,7 @@ export async function syncRule(source: RuleSource): Promise<SyncResult> {
       s3Key: key,
       bytes: written,
       elapsedMs: Date.now() - start,
+      skipped: false,
     };
   } catch (err) {
     throw new Error(

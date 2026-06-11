@@ -13,15 +13,19 @@ export async function syncAll(): Promise<void> {
   const results = await Promise.allSettled(RULE_SOURCES.map(syncRule));
 
   let ok = 0;
+  let unchanged = 0;
   let failed = 0;
 
   for (const result of results) {
     if (result.status === 'fulfilled') {
-      const { name, s3Key, bytes, elapsedMs } = result.value;
+      const { name, s3Key, bytes, elapsedMs, skipped } = result.value;
+      const mark = skipped ? '=' : '✓';
+      const suffix = skipped ? '  (unchanged)' : '';
       console.log(
-        `[${ts()}] [s3]  ✓  ${name.padEnd(20)} ${formatBytes(bytes).padStart(9)}   ${elapsedMs}ms  →  ${s3Key}`
+        `[${ts()}] [s3]  ${mark}  ${name.padEnd(20)} ${formatBytes(bytes).padStart(9)}   ${elapsedMs}ms  →  ${s3Key}${suffix}`
       );
-      ok++;
+      if (skipped) unchanged++;
+      else ok++;
     } else {
       const msg =
         result.reason instanceof Error
@@ -34,7 +38,7 @@ export async function syncAll(): Promise<void> {
 
   const elapsed = ((Date.now() - start) / 1000).toFixed(1);
   console.log(
-    `[${ts()}] [sync] Done in ${elapsed}s — ${ok} ok, ${failed} failed.`
+    `[${ts()}] [sync] Done in ${elapsed}s — ${ok} uploaded, ${unchanged} unchanged, ${failed} failed.`
   );
 }
 

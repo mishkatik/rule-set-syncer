@@ -4,7 +4,7 @@ Periodically mirrors [Mihomo](https://github.com/MetaCubeX/mihomo) rule-set file
 
 ## How it works
 
-On startup and then on a configurable cron schedule, the syncer fetches all rule sources defined in `sources.json` in parallel and uploads them to S3. Failed sources are logged and retried on the next run.
+On startup and then on a configurable cron schedule, the syncer fetches all rule sources defined in `sources.json` in parallel and uploads them to S3. If the downloaded content is identical to the object already in S3 (compared via MD5 against the object's ETag), the upload is skipped. Failed sources are logged and retried on the next run.
 
 ## Quick start
 
