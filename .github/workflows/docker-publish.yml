@@ -39,6 +39,10 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
+      - name: Compute short SHA
+        id: vars
+        run: echo "sha_short=${GITHUB_SHA::7}" >> "$GITHUB_OUTPUT"
+
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
@@ -46,7 +50,7 @@ jobs:
           push: true
           tags: |
             mishkatik/rule-set-syncer:latest
-            mishkatik/rule-set-syncer:${{ github.sha }}
+            mishkatik/rule-set-syncer:${{ steps.vars.outputs.sha_short }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
