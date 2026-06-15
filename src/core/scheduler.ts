@@ -1,9 +1,13 @@
 import { env, RULE_SOURCES } from '@config';
-import { syncRule } from '@core/syncer';
+import { type SyncFailure, type SyncResult, syncRule } from '@core/syncer';
+import { notifySync } from '@notify';
 import { formatBytes, ts } from '@utils';
 import cron, { type ScheduledTask } from 'node-cron';
 
-/** Runs all rule syncs in parallel, then logs results in source order. */
+/**
+ * Runs all rule syncs in parallel, logs results in source order, and sends a
+ * single Telegram summary (when configured and there is something to report).
+ */
 export async function syncAll(): Promise<void> {
   console.log(
     `[${ts()}] [sync] Starting sync of ${RULE_SOURCES.length} sources...`
@@ -12,11 +16,11 @@ export async function syncAll(): Promise<void> {
 
   const results = await Promise.allSettled(RULE_SOURCES.map(syncRule));
 
-  let ok = 0;
-  let unchanged = 0;
-  let failed = 0;
+  const uploaded: SyncResult[] = [];
+  const unchanged: SyncResult[] = [];
+  const failed: SyncFailure[] = [];
 
-  for (const result of results) {
+  results.forEach((result, i) => {
     if (result.status === 'fulfilled') {
       const { name, s3Key, bytes, elapsedMs, skipped } = result.value;
       const mark = skipped ? '=' : '✓';
@@ -24,22 +28,24 @@ export async function syncAll(): Promise<void> {
       console.log(
         `[${ts()}] [s3]  ${mark}  ${name.padEnd(20)} ${formatBytes(bytes).padStart(9)}   ${elapsedMs}ms  →  ${s3Key}${suffix}`
       );
-      if (skipped) unchanged++;
-      else ok++;
+      if (skipped) unchanged.push(result.value);
+      else uploaded.push(result.value);
     } else {
-      const msg =
+      const message =
         result.reason instanceof Error
           ? result.reason.message
           : String(result.reason);
-      console.error(`[${ts()}] [s3]  ✗  ${msg}`);
-      failed++;
+      console.error(`[${ts()}] [s3]  ✗  ${message}`);
+      failed.push({ name: RULE_SOURCES[i]?.name ?? 'unknown', message });
     }
-  }
+  });
 
-  const elapsed = ((Date.now() - start) / 1000).toFixed(1);
+  const elapsedMs = Date.now() - start;
   console.log(
-    `[${ts()}] [sync] Done in ${elapsed}s — ${ok} uploaded, ${unchanged} unchanged, ${failed} failed.`
+    `[${ts()}] [sync] Done in ${(elapsedMs / 1000).toFixed(1)}s — ${uploaded.length} uploaded, ${unchanged.length} unchanged, ${failed.length} failed.`
   );
+
+  await notifySync({ uploaded, unchanged, failed, elapsedMs });
 }
 
 /** Starts the cron scheduler. Returns the task handle so it can be stopped. */

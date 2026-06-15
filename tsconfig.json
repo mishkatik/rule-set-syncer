@@ -34,6 +34,8 @@
       "@config/*": ["src/config/*"],
       "@core": ["src/core/index.ts"],
       "@core/*": ["src/core/*"],
+      "@notify": ["src/notify/index.ts"],
+      "@notify/*": ["src/notify/*"],
       "@utils": ["src/utils/index.ts"],
       "@utils/*": ["src/utils/*"]
     }

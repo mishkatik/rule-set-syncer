@@ -13,6 +13,24 @@ export interface SyncResult {
   skipped: boolean;
 }
 
+/** A source that failed to sync, paired with the reason. */
+export interface SyncFailure {
+  name: string;
+  message: string;
+}
+
+/** Aggregated outcome of a full {@link syncAll} run, grouped by status. */
+export interface SyncSummary {
+  /** Sources whose content changed and were re-uploaded. */
+  uploaded: SyncResult[];
+  /** Sources whose content already matched S3 (upload skipped). */
+  unchanged: SyncResult[];
+  /** Sources that failed to download or upload. */
+  failed: SyncFailure[];
+  /** Total wall-clock time for the run, in milliseconds. */
+  elapsedMs: number;
+}
+
 /** Lazily initialised S3 client using env vars. */
 const s3 = new S3Client({
   accessKeyId: env.S3_ACCESS_KEY_ID,

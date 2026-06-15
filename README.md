@@ -28,6 +28,9 @@ Edit `.env` with your S3 credentials:
 | `S3_REGION`            | —        | `us-east-1` | Bucket region                                |
 | `S3_KEY_PREFIX`        | —        | —           | Optional prefix for all uploaded keys        |
 | `CRON_SCHEDULE`        | —        | `0 * * * *` | Cron expression (default: every hour)        |
+| `TELEGRAM_BOT_TOKEN`   | —        | —           | Bot token — enables Telegram notifications    |
+| `TELEGRAM_CHAT_ID`     | —        | —           | Target chat id (or `@channelusername`)       |
+| `TELEGRAM_TOPIC_ID`    | —        | —           | Forum topic (message thread) id, if any      |
 
 Then start:
 
@@ -65,3 +68,9 @@ Edit `sources.json` to add, remove, or update rule sources. Each entry has three
 ```bash
 docker compose restart
 ```
+
+## Telegram notifications
+
+Set `TELEGRAM_BOT_TOKEN` and `TELEGRAM_CHAT_ID` (and optionally `TELEGRAM_TOPIC_ID` for a forum topic) to get a single summary message after each run — how many sources were uploaded, were unchanged, and failed, plus the list of what changed and any errors.
+
+To avoid noise, a message is sent **only when something changed or failed**: runs where every source is already up to date stay silent. Notifications use [grammY](https://grammy.dev) and never block or fail a sync — delivery errors are logged and ignored.

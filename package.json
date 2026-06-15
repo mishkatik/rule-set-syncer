@@ -7,9 +7,9 @@
     "start": "bun src/index.ts",
     "build": "bun build --compile --minify --sourcemap src/index.ts --outfile out/rule-set-syncer",
     "format": "biome check --write .",
-		"format:check": "biome check .",
-		"lint": "biome lint --write .",
-		"lint:check": "biome lint ."
+    "format:check": "biome check .",
+    "lint": "biome lint --write .",
+    "lint:check": "biome lint ."
   },
   "devDependencies": {
     "@biomejs/biome": "2.4.15",
@@ -20,6 +20,7 @@
     "typescript": "^5"
   },
   "dependencies": {
+    "grammy": "^1.44.0",
     "ky": "^2.0.2",
     "node-cron": "^4.2.1",
     "zod": "^4.4.3"
